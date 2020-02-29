@@ -84,7 +84,7 @@ else
   BOOST_PACKAGE_BASENAME=boost_${BOOST_VERSION//./_}
 
   log "Retrieving boost."
-  wget "https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz"
+  wget "https://svwh.dl.sourceforge.net/project/boost/boost/1.72.0/boost_1_72_0.tar.gz"
 
   log "Extracting boost for Python 2."
   tar -xzf ${BOOST_PACKAGE_BASENAME}.tar.gz
