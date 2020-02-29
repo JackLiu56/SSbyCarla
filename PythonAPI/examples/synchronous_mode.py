@@ -53,16 +53,12 @@ class CarlaSyncMode(object):
         self.world = world
         self.sensors = sensors
         self.frame = None
-        self.delta_seconds = 1.0 / kwargs.get('fps', 20)
         self._queues = []
-        self._settings = None
 
     def __enter__(self):
-        self._settings = self.world.get_settings()
-        self.frame = self.world.apply_settings(carla.WorldSettings(
-            no_rendering_mode=False,
-            synchronous_mode=True,
-            fixed_delta_seconds=self.delta_seconds))
+        settings = self.world.get_settings()
+        settings.synchronous_mode = True
+        self.frame = self.world.apply_settings(settings)
 
         def make_queue(register_event):
             q = queue.Queue()
@@ -81,6 +77,8 @@ class CarlaSyncMode(object):
         return data
 
     def __exit__(self, *args, **kwargs):
+        settings = self.world.get_settings()
+        settings.synchronous_mode = False
         self.world.apply_settings(self._settings)
 
     def _retrieve_data(self, sensor_queue, timeout):
@@ -142,25 +140,25 @@ def main():
         blueprint_library = world.get_blueprint_library()
 
         vehicle = world.spawn_actor(
-            random.choice(blueprint_library.filter('vehicle.*')),
+            random.choice(blueprint_library.filter('vehicle.Tesla')),
             start_pose)
         actor_list.append(vehicle)
         vehicle.set_simulate_physics(False)
 
         camera_rgb = world.spawn_actor(
             blueprint_library.find('sensor.camera.rgb'),
-            carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=-15)),
+            carla.Transform(carla.Location(x=2.0, z=2.0)),
             attach_to=vehicle)
         actor_list.append(camera_rgb)
 
         camera_semseg = world.spawn_actor(
             blueprint_library.find('sensor.camera.semantic_segmentation'),
-            carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=-15)),
+            carla.Transform(carla.Location(x=2.0, z=2.0), carla.Rotation(pitch=-15)),
             attach_to=vehicle)
         actor_list.append(camera_semseg)
 
         # Create a synchronous mode context.
-        with CarlaSyncMode(world, camera_rgb, camera_semseg, fps=30) as sync_mode:
+        with CarlaSyncMode(world, camera_rgb, camera_semseg) as sync_mode:
             while True:
                 if should_quit():
                     return
@@ -174,6 +172,7 @@ def main():
                 vehicle.set_transform(waypoint.transform)
 
                 image_semseg.convert(carla.ColorConverter.CityScapesPalette)
+                image_semseg.save_to_disk('result/%08d' % image_semseg.frame)
                 fps = round(1.0 / snapshot.timestamp.delta_seconds)
 
                 # Draw the display.
