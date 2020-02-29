@@ -1,3 +1,9 @@
+usage:
+python3 carla/PythonAPI/examples/synchronous_mode.py
+
+It will output semantic segmentation labels of the learning results.
+The brand of the vehicle I use is "Tesla"
+
 CARLA Simulator
 ===============
 
