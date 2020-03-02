@@ -1,5 +1,9 @@
 usage:
-python3 carla/PythonAPI/examples/synchronous_mode.py
+We need two termial windows
+first window
+./firstStep.sh
+second window
+./secondStep.sh
 
 It will output semantic segmentation labels of the learning results. By running the command above, there will be folder come out which is called "result", photos in this folder will be the result of the street view with semantic segmentation labels
 The brand of the vehicle I use is "Tesla"
